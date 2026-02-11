@@ -1,0 +1,27 @@
+name: Deploy Laravel Sail
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /ruta/a/tu/proyecto-en-el-vps
+            git pull origin main
+            # Ejecutamos comandos de Sail dentro del servidor
+            ./vendor/bin/sail up -d
+            ./vendor/bin/sail artisan migrate --force
+            ./vendor/bin/sail artisan optimize
